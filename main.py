@@ -3,7 +3,8 @@ import sys
 
 # Load the pages (classes)
 from assets.scripts.start_menu import StartMenu
-from assets.scripts.quiz import Quiz
+from assets.scripts.game import Quiz
+
 # from assets.scripts.game_over import GameOver
 
 # Load the settings class that have all the settings of the Quiz app
@@ -24,7 +25,7 @@ def run_game():
 
     # Create instances of the app pages
     start_menu = StartMenu(screen, settings)
-    # quiz = Quiz(screen, settings)
+    quiz = Quiz(screen, settings)
     # game_over = GameOver(screen, settings)
 
     # Set the current page to the start menu
@@ -48,8 +49,8 @@ def run_game():
             current_page = start_menu
         elif flag == "quiz":
             current_page = quiz
-        # elif flag == "game_over":
-        #     current_page = game_over
+        elif flag == "game_over":
+            current_page = start_menu
 
         # Render the current page
         current_page.render()

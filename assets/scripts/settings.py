@@ -14,5 +14,5 @@ class Settings():
         # Colors
         self.bg_color = "#AA92E0"
         self.menu_btn_color = "#FF8201"
-        self.menu_btn_hover_color = (0, 0, 200)
+        self.ans_opt_btn_color = "#3db5e7"
 
