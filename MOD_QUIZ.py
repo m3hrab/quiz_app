@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 
 pygame.init()
 
@@ -33,10 +34,14 @@ class Button():
         x, y = pygame.mouse.get_pos()
         if self.rect.collidepoint(x, y):
             self.bg_color = BLUE
-            if pygame.mouse.get_pressed()[0]:
-                self.clicked = True
         else:
             self.bg_color = WHITE
+
+        if pygame.mouse.get_pressed()[0]:
+            if self.rect.collidepoint(x, y):
+                self.clicked = True
+                
+
 
         if self.clicked:
             self.fun(*self.args)
@@ -53,29 +58,56 @@ SCREEN_HEIGHT = screen_info.current_h
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("MOD Quiz")
 
-
+# Global variables
+current_question = 0
+questions = []
 
 def set_state(state):
     global current_state
     current_state = state
 
-# Buttons 
-start_btn = Button("Press to Start", ((SCREEN_WIDTH - 300) // 2, SCREEN_HEIGHT//2), (300, 50), set_state, "game")
-quit_btn = Button("Press to Quit", ((SCREEN_WIDTH - 300) // 2, SCREEN_HEIGHT//2 + 70), (300, 50), set_state, "quit")
-                  
-def start_scrren():
-    screen.fill(RED)
-    # Check for button click 
-    start_btn.update()
+def load_questions():
+    global questions
+    questions_dir = 'assets/questions/'
+    question_files = sorted(os.listdir(questions_dir))
+    for file_name in question_files:
+        with open(os.path.join(questions_dir, file_name), 'r') as file:
+            question_data = file.readlines()
+            questions.append(question_data)
+
+def game_screen():
+    global current_question
+    screen.fill(GREEN)
+    current_question_data = questions[current_question]
+    question_text = current_question_data[0].strip()
+    draw_text(question_text, BLACK, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 4)
+    options = [option.strip() for option in current_question_data[1:5]]
+    option_y = SCREEN_HEIGHT // 2
+    for option in options:
+        draw_text(option, BLACK, SCREEN_WIDTH // 2, option_y)
+        option_y += 50
+
+    # Draw question number and score
+    draw_text("Question: {}".format(current_question + 1), BLACK, SCREEN_WIDTH - 100, 20)
+    draw_text("Score: {}".format(score), BLACK, 100, 20)
+
+    # Update button
     quit_btn.update()
-    # Draw buttons
-    start_btn.draw(screen)
     quit_btn.draw(screen)
+
+def draw_text(text, color, x, y):
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect()
+    text_rect.center = (x, y)
+    screen.blit(text_surface, text_rect)
 
 
 def main():
-    global current_state
+    global current_state, score
     current_state = "start"
+    load_questions()
+    score = 0
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -83,15 +115,18 @@ def main():
                 sys.exit()
         
         if current_state == "start":
-            start_scrren()
+            screen.fill(RED)
+            start_btn.update()
+            quit_btn.update()
+            start_btn.draw(screen)
+            quit_btn.draw(screen)
         elif current_state == "quit":
             pygame.quit()
             sys.exit()
         elif current_state == "game":
-            pass
+            game_screen()
 
         pygame.display.flip()
-
 
 if __name__ == "__main__":
     main()

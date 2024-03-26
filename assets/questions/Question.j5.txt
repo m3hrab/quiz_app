@@ -1,0 +1,6 @@
+What is the capital of England?
+1.England
+2.United Kingdom
+3.Manchester
+4.London
+4
