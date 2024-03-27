@@ -1,4 +1,5 @@
 import pygame
+import random
 
 class Quiz():
     """A class to store all the functionalities of the quiz page"""
@@ -10,13 +11,16 @@ class Quiz():
 
         self.questions.append(["What does MOD stand for?",
                             ["Ministry of drive", " Ministry of defence", "Mission of Device", "Mission of ministry"],
-                            1])    
+                            1, 'MOD.jpg'])    
         
         self.questions.append(["What country has the biggest population?",
                               ["India", "China", "Indonesia", "United states of America"],
-                            1])
+                            1, "indiaChina.jpg"])
 
         # Add other questions...
+
+        # shuffle the questions
+        random.shuffle(self.questions)
 
         self.current_question_index = 0
         self.score = 0
@@ -24,7 +28,7 @@ class Quiz():
 
         self.question_rect = pygame.Rect(0, 0, 400, 200)
         self.question_rect.centerx = self.screen.get_rect().centerx
-        self.question_rect.y = 20
+        self.question_rect.y = 50
         self.font = pygame.font.Font('assets/fonts/Helvetica.otf', 28)
 
         self.option_font = pygame.font.Font('assets/fonts/Helvetica.otf', 24)
@@ -43,16 +47,30 @@ class Quiz():
             button_rect = pygame.Rect(pos[0], pos[1], option_size[0], option_size[1])
             self.option_buttons.append(button_rect)
 
+        
+        # Timer attributes
+        self.clock = pygame.time.Clock()
+        self.timer_event = pygame.USEREVENT+1 # Custom event for the timer
+        pygame.time.set_timer(self.timer_event, 1000) 
+        self.timer_paused = False
+        self.time_left = 60
+        
+
 
     def reset(self):
         self.score = 0
         self.asked_questions.clear()
         self.current_question_index = 0
+        self.time_left = 60
+        self.timer_paused = False
+        random.shuffle(self.questions)
 
     def handle_events(self, events):
         for event in events:
             if event.type == pygame.QUIT:
                 return "quit"
+
+                
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # Check for button click
                 mouse_pos = pygame.mouse.get_pos()
@@ -63,6 +81,13 @@ class Quiz():
                             self.reset()
                             return "game_over"
                         self.next_question()
+
+            else:
+                if event.type == self.timer_event and not self.timer_paused:
+                    self.time_left -= 1
+                    if self.time_left == 0:
+                        self.reset()
+                        return "game_over"
 
     def check_answer(self, selected_option_index):
         current_question = self.questions[self.current_question_index]
@@ -85,7 +110,7 @@ class Quiz():
         options = current_question[1]
 
         question_surface = self.font.render(question_text, True, (0, 0, 0))
-        question_rect = question_surface.get_rect(center=(self.screen.get_width() // 2, 100))
+        question_rect = question_surface.get_rect(center=(self.screen.get_width() // 2, 50))
         self.screen.blit(question_surface, question_rect)
 
         # Render answer options as buttons
@@ -105,5 +130,22 @@ class Quiz():
         score_surface = self.font.render(f"Score: {self.score}", True, (0, 0, 0))
         score_rect = score_surface.get_rect(topright=(self.screen.get_width() - 20, 20))
         self.screen.blit(score_surface, score_rect)
+
+        # Render question number
+        question_num_surface = self.font.render(f"Question {self.current_question_index + 1}/{len(self.questions)}", True, (0, 0, 0))
+        question_num_rect = question_num_surface.get_rect(topright=(self.screen.get_width() - 20, 60))
+        self.screen.blit(question_num_surface, question_num_rect)
+
+        # Render image
+        image = pygame.image.load(f'assets/images/{current_question[3]}')
+        image = pygame.transform.scale(image, (620, 320))
+        image_rect = image.get_rect(center=(self.screen.get_width() // 2, 250))
+        self.screen.blit(image, image_rect)
+
+
+        # Render timer
+        timer_surface = self.font.render(f"Time left: {self.time_left}", True, (0, 0, 0))
+        timer_rect = timer_surface.get_rect(topleft=(20, 20))
+        self.screen.blit(timer_surface, timer_rect)
 
         pygame.display.flip()

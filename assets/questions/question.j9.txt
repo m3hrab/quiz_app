@@ -1,6 +1,0 @@
-What is the capital of Germany?
-1.Berlin
-2.Monaco
-3.London
-4.Paris
-1
