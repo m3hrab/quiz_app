@@ -13,6 +13,7 @@ from assets.scripts.settings import Settings
 def run_game():
     # Initialize the game
     pygame.init()
+    pygame.mixer.init()
 
     # Load the settings
     settings = Settings()

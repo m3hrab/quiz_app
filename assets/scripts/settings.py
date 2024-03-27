@@ -5,6 +5,7 @@ class Settings():
 
     def __init__(self):
         
+        pygame.mixer.init()
         # Screen settings
         screen_info = pygame.display.Info() # Get the screen info
         self.screen_width = screen_info.current_w
@@ -19,4 +20,8 @@ class Settings():
 
         # Timer
         self.timer_duration = 60
+
+        # Sounds 
+        self.correct_sound = pygame.mixer.Sound("assets/sounds/correct_answer.mp3")
+        self.wrong_sound = pygame.mixer.Sound("assets/sounds/wrong_answer.mp3")
 
