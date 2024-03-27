@@ -53,7 +53,7 @@ class Quiz():
         self.timer_event = pygame.USEREVENT+1 # Custom event for the timer
         pygame.time.set_timer(self.timer_event, 1000) 
         self.timer_paused = False
-        self.time_left = 60
+        self.time_left = self.settings.timer_duration
         
 
 
@@ -78,6 +78,7 @@ class Quiz():
                     if button_rect.collidepoint(mouse_pos):
                         self.check_answer(index)
                         if len(self.asked_questions) == len(self.questions) - 1:  # Check if all questions have been asked
+                            self.save_score = self.score
                             self.reset()
                             return "game_over"
                         self.next_question()
@@ -86,8 +87,12 @@ class Quiz():
                 if event.type == self.timer_event and not self.timer_paused:
                     self.time_left -= 1
                     if self.time_left == 0:
-                        self.reset()
-                        return "game_over"
+                        if len(self.asked_questions) == len(self.questions) - 1:  
+                            self.reset()
+                            return "game_over"
+                        
+                        self.next_question()
+                        self.time_left = self.settings.timer_duration
 
     def check_answer(self, selected_option_index):
         current_question = self.questions[self.current_question_index]
